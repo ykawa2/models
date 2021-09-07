@@ -55,6 +55,9 @@ import tensorflow as tf
 from deeplab import common
 from deeplab import input_preprocess
 
+flags = tf.app.flags
+FLAGS = flags.FLAGS
+
 # Named tuple to describe the dataset properties.
 DatasetDescriptor = collections.namedtuple(
     'DatasetDescriptor',
@@ -99,11 +102,59 @@ _ADE20K_INFORMATION = DatasetDescriptor(
     ignore_label=0,
 )
 
+_REAL_IMAGE_SEGTEST_30_513P_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'val': 30,
+    },
+    num_classes=2,
+    ignore_label=255,
+)
+
+_AUG_TEST_513P_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 100,
+    },
+    num_classes=2,
+    ignore_label=255,
+)
+
+_AUG_TEST_769P_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 100,
+    },
+    num_classes=2,
+    ignore_label=255,
+)
+
+_SEG_DATASET_HAIR_4310_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 4310,
+    },
+    num_classes=2,
+    ignore_label=255,
+)
+
+#(2021/6/15)added to allow setting data num from command line
+_GET_DATANUM_FROM_FLAGS = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 0,
+    },
+    num_classes=2,
+    ignore_label=255,
+)
+
+
 _DATASETS_INFORMATION = {
     'cityscapes': _CITYSCAPES_INFORMATION,
     'pascal_voc_seg': _PASCAL_VOC_SEG_INFORMATION,
     'ade20k': _ADE20K_INFORMATION,
+    'real_image_segtest_30_513p': _REAL_IMAGE_SEGTEST_30_513P_INFORMATION,
+    'aug_test_513p': _AUG_TEST_513P_INFORMATION,
+    'aug_test_769p': _AUG_TEST_769P_INFORMATION,
+    'seg_dataset_hair_4310': _SEG_DATASET_HAIR_4310_INFORMATION,
+    'get_datanum_from_flags': _GET_DATANUM_FROM_FLAGS,
 }
+
 
 # Default file pattern of TFRecord of TensorFlow Example.
 _FILE_PATTERN = '%s-*'
@@ -160,11 +211,18 @@ class Dataset(object):
     Raises:
       ValueError: Dataset name and split name are not supported.
     """
+    print(_DATASETS_INFORMATION)
+    print('dataset_name:', dataset_name)
     if dataset_name not in _DATASETS_INFORMATION:
       raise ValueError('The specified dataset is not supported yet.')
     self.dataset_name = dataset_name
 
     splits_to_sizes = _DATASETS_INFORMATION[dataset_name].splits_to_sizes
+
+    #(2021/6/15)added to allow setting data num from command line
+    if  dataset_name=='get_datanum_from_flags':
+        splits_to_sizes={'train': FLAGS.train_data_num}
+    #
 
     if split_name not in splits_to_sizes:
       raise ValueError('data split name %s not recognized' % split_name)

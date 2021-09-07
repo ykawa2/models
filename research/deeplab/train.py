@@ -35,6 +35,10 @@ slim = tf.contrib.slim
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
+
+#(2021/6/15)added to allow setting data num from command line
+flags.DEFINE_integer('train_data_num', None, 'Number of train data.')
+
 # Settings for multi-GPUs/multi-replicas training.
 
 flags.DEFINE_integer('num_clones', 1, 'Number of clones to deploy.')

@@ -88,7 +88,9 @@ def _create_input_tensors():
     resized_image_size: Resized image shape tensor [height, width].
   """
   # input_preprocess takes 4-D image tensor as input.
-  input_image = tf.placeholder(tf.uint8, [1, None, None, 3], name=_INPUT_NAME)
+  #input_image = tf.placeholder(tf.uint8, [1, None, None, 3], name=_INPUT_NAME)
+  input_image = tf.placeholder(tf.float32, [1, FLAGS.crop_size[0], FLAGS.crop_size[1], 3], name=_INPUT_NAME)
+  
   original_image_size = tf.shape(input_image)[1:3]
 
   # Squeeze the dimension in axis=0 since `preprocess_image_and_label` assumes

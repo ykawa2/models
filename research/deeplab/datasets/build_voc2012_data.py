@@ -118,12 +118,27 @@ def _convert_dataset(dataset_split):
         # Read the image.
         image_filename = os.path.join(
             FLAGS.image_folder, filenames[i] + '.' + FLAGS.image_format)
+
+        ###(2021/6/15)added to adapt to both jpg and png
+        if not os.path.isfile(image_filename):
+            if FLAGS.image_format=='jpg':
+                FLAGS.image_format='png'
+                print('FLAGS.image_format changed from jpg to png')
+            elif FLAGS.image_format=='png':
+                FLAGS.image_format='jpg'
+                print('FLAGS.image_format changed from png to jpg')
+            
+            image_filename = os.path.join(
+                FLAGS.image_folder, filenames[i] + '.' + FLAGS.image_format)
+        
+        ###
+
         image_data = tf.gfile.GFile(image_filename, 'rb').read()
         height, width = image_reader.read_image_dims(image_data)
         # Read the semantic segmentation annotation.
         seg_filename = os.path.join(
             FLAGS.semantic_segmentation_folder,
-            filenames[i] + '.' + FLAGS.label_format)
+            filenames[i] + '_label.' + FLAGS.label_format) #(2021/6/15)added to adapt to both jpg and png
         seg_data = tf.gfile.GFile(seg_filename, 'rb').read()
         seg_height, seg_width = label_reader.read_image_dims(seg_data)
         if height != seg_height or width != seg_width:

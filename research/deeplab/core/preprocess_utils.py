@@ -25,27 +25,28 @@ import tensorflow as tf
 
 def flip_dim(tensor_list, prob=0.5, dim=1):
   """Randomly flips a dimension of the given tensor.
-
   The decision to randomly flip the `Tensors` is made together. In other words,
   all or none of the images pass in are flipped.
-
   Note that tf.random_flip_left_right and tf.random_flip_up_down isn't used so
   that we can control for the probability as well as ensure the same decision
   is applied across the images.
-
   Args:
     tensor_list: A list of `Tensors` with the same number of dimensions.
     prob: The probability of a left-right flip.
     dim: The dimension to flip, 0, 1, ..
-
   Returns:
     outputs: A list of the possibly flipped `Tensors` as well as an indicator
     `Tensor` at the end whose value is `True` if the inputs were flipped and
     `False` otherwise.
-
   Raises:
     ValueError: If dim is negative or greater than the dimension of a `Tensor`.
   """
+  
+  #----------------------------
+  #To allow rotation, set the flag True
+  ROTATION_FLAG=True
+  #----------------------------
+
   random_value = tf.random_uniform([])
 
   def flip():
@@ -56,8 +57,25 @@ def flip_dim(tensor_list, prob=0.5, dim=1):
       flipped.append(tf.reverse_v2(tensor, [dim]))
     return flipped
 
+
+  def rotation(tensor_list):
+    #The generated values follow a uniform distribution in the range [minval, maxval).
+    rot_random_value =tf.random_uniform([], maxval=4, dtype=tf.int32)
+    
+    rotated=[]
+    for tensor in tensor_list:
+        rotated.append(tf.image.rot90(tensor, k=rot_random_value))
+     
+    return rotated
+
+
   is_flipped = tf.less_equal(random_value, prob)
   outputs = tf.cond(is_flipped, flip, lambda: tensor_list)
+
+  #add for rotation
+  if ROTATION_FLAG:
+    outputs = rotation(outputs)
+
   if not isinstance(outputs, (list, tuple)):
     outputs = [outputs]
   outputs.append(is_flipped)
