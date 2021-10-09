@@ -16,6 +16,7 @@
 """Exports trained model to TensorFlow frozen graph."""
 
 import os
+import numpy as np
 import tensorflow as tf
 
 from tensorflow.contrib import quantize as contrib_quantize
@@ -195,6 +196,8 @@ def main(unused_argv):
 
     if FLAGS.save_inference_graph:
       tf.train.write_graph(graph_def, dirname, 'inference_graph.pbtxt')
+
+    print('parameters:', np.sum([np.prod(v.shape) for v in tf.trainable_variables()]))
 
 
 if __name__ == '__main__':
